@@ -1,30 +1,53 @@
-# ArduPilot SITL: shared control
+# ArduPilot SITL: Human–AI Shared Control
 
-Human + AI shared control on an ArduPilot Copter running in SITL, using pymavlink.
+A simulation-based project exploring human–AI shared control for obstacle avoidance using ArduPilot SITL and `pymavlink`.
+
+## Overview
+
+The project compares human-only control with shared control, which combines human commands and AI-generated obstacle-avoidance commands using an alpha-blending coefficient.
+
+- **Environment:** ArduPilot Software-in-the-Loop (SITL)
+- **Interface:** `pymavlink`
+- **Control:** Velocity setpoints in the local North-East-Down frame
 
 ## Setup
-1. Start SITL: `cd ~/ardupilot/ArduCopter && sim_vehicle.py -v ArduCopter --console`
-2. Activate the venv: `source ~/venv-ardupilot/bin/activate`
-3. Run scripts from a folder where you want the logs to be saved.
 
-## scripts/
-- test_drone.py: connect, arm, take off to 10 m, land
-- test_move.py: fly north at 1 m/s using velocity setpoints
-- test_shared.py: scripted human + AI, alpha blending (Eq. 22)
-- test_keyboard.py: keyboard human-in-the-loop (w/a/s/d, q to quit)
-- test_obstacle.py: virtual obstacle test. Run `python test_obstacle.py shared auto` and `python test_obstacle.py manual auto`
-- telemetry_reader.py: telemetry reading
+1. Start ArduPilot SITL:
+   ```bash
+   cd ~/ardupilot/ArduCopter
+   sim_vehicle.py -v ArduCopter --console
+   ```
 
-## plots/
-Run from the folder that holds the CSV logs, for example:
-`cd ardupilot/results && python ../plots/plot_obstacle.py`
+2. Activate the Python virtual environment:
+   ```bash
+   source ~/venv-ardupilot/bin/activate
+   ```
 
-## results/
-| Run | Min distance to obstacle | Time inside obstacle |
-|---|---|---|
-| Human only | 1.0 m | 2.3 s |
-| Shared control | 3.1 m | 0.0 s |
+3. Run scripts from the repository directory.
 
-Same scripted human input in both runs. Collision limit is 2.0 m.
+## Scripts
 
-early_tests/ holds older keyboard and shared runs recorded before positions were made relative to the takeoff point, so their distance-to-target numbers are unreliable.
+| Script | Purpose |
+|---|---|
+| `test_drone.py` | Basic connection, takeoff, and landing test |
+| `test_move.py` | Tests northward movement using velocity setpoints |
+| `test_shared.py` | Demonstrates human–AI command blending |
+| `test_keyboard.py` | Keyboard-based human-in-the-loop control |
+| `test_obstacle.py` | Virtual-obstacle shared-control experiment |
+| `telemetry_reader.py` | Reads vehicle telemetry |
+
+The obstacle script supports shared and manual modes. The `auto` option supplies a scripted human command.
+
+## Experimental Results
+
+These values are from existing SITL simulation runs and are preliminary.
+
+| Metric | Human-only | Shared control |
+|---|---:|---:|
+| Minimum distance from obstacle centre | 0.99 m | 3.09 m |
+| Recorded samples inside the 2 m radius | 23 | 0 |
+| Approximate time inside the 2 m radius | 2.34 s | 0 s |
+
+In the recorded shared-control run, the trajectory remained outside the defined 2 m obstacle-centre radius. The human-only run entered that radius.
+
+The runs had
